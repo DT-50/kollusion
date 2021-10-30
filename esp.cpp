@@ -119,10 +119,70 @@ namespace esp {
 			}
 		}
 	}
-
+	//finally added this bitch, will require some redoing.
 	void glow(forceinline::memory_manager* memory)
 	{
+		float r, g, b;
+		rainbow(&r, &g, &b, rand());
+		static DWORD client_dll = memory->get_module_base("client.dll");
+		static DWORD engine_dll = memory->get_module_base("engine.dll");
 
+		int local = memory->read<int>(client_dll + offsets::dwLocalPlayer);
+		int clientState = memory->read<int>(engine_dll + offsets::dwClientState);
+
+			int maxPlayerCount = memory->read<int>(clientState + offsets::dwClientState_MaxPlayer);
+
+			if (maxPlayerCount < 1) {
+				Sleep(500);
+				//continue;
+			}
+
+			int glowObj = memory->read<int>(client_dll + offsets::dwGlowObjectManager);
+
+			int myTeam = memory->read<int>(local + offsets::m_iTeamNum);
+
+			for (int i = 0; i < maxPlayerCount; i++) {
+
+				int curEnt = memory->read<int>(client_dll + offsets::dwEntityList + i * 0x10);
+				bool isDormant = memory->read<bool>(curEnt + offsets::m_bDormant);
+
+				if (!isDormant) {
+
+					int glowInd = memory->read<int>(curEnt + offsets::m_iGlowIndex);
+					int entTeam = memory->read<int>(curEnt + offsets::m_iTeamNum);
+
+					DWORD curentglowoff = glowObj + (glowInd * 0x38);
+					GlowStruct currentGlow = memory->read<GlowStruct>(curentglowoff);
+					ChamStruct currentCham {};
+					currentGlow.Alpha = 1.7f;
+					currentGlow.renderOccluded = true;
+					currentGlow.renderUnoccluded = false;
+
+					if (myTeam == entTeam)
+					{
+						currentGlow.Red = 119.0f;
+						currentGlow.Green = 136.0f;
+						currentGlow.Blue = 153.0f;
+					}
+					else
+					{
+						currentGlow.Red = 119.0f;
+						currentGlow.Green = 136.0f;
+						currentGlow.Blue = 153.0f;
+						if (memory->read<bool>(curEnt + offsets::m_bIsDefusing))
+						{
+							currentGlow.Red = 255.0f;
+							currentGlow.Green = 255.0f;
+							currentGlow.Blue = 255.0f;
+						}
+						memory->write<bool>(curEnt + offsets::m_bSpotted, true);
+					}
+
+					memory->write<GlowStruct>(curentglowoff, currentGlow);
+				}
+			}
+			Sleep(1);
+		
 	}
 
 	void getteam(forceinline::memory_manager* memory, forceinline::dx_renderer* renderer) {
