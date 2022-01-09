@@ -1,8 +1,10 @@
 # kollusion
 
-kollusion is a project made by me (odyssey) in which I learn how to properly make an overlay.
+~~kollusion is a project made by me (odyssey) in which I learn how to properly make an overlay.~~
 
-currently, this project isn't much, but I have plans in the next coming months to get a working product for everyone.
+~~currently, this project isn't much, but I have plans in the next coming months
+
+take this pasted shit jesus christ i think theres an aimbot in here too
 
 # features
 
